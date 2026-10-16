@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>حاسبة المدة التنفيذية</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>حاسبة المدة التنفيذية</h1>
+  <p class="lead">أدخل تاريخ ووقت بداية الخدمة لمعرفة هل الطلب تجاوز المدة.</p>
+
+  <div class="card">
+    <label for="service">نوع الخدمة</label>
+    <select id="service"></select>
+
+    <label for="stage">المرحلة</label>
+    <select id="stage"></select>
+
+    <label for="start">تاريخ ووقت بداية الخدمة</label>
+    <div class="row"><input type="datetime-local" id="start"><button type="button" id="now">الآن</button></div>
+
+    <p class="info" id="info"></p>
+    <div id="result" class="result idle"></div>
+  </div>
+
+  <h2>مدد المراحل لهذه الخدمة</h2>
+  <table>
+    <thead><tr><th>المرحلة</th><th>المدة</th><th>النوع</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</main>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
