@@ -38,3 +38,9 @@ button{padding:0 18px;font:inherit;font-weight:700;color:#fff;background:var(--b
 @media (prefers-color-scheme:dark){button{color:#10181c}}
 .clock{margin:0 0 12px;padding:8px 12px;font-size:.88rem;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:8px}
 .clock b{color:var(--ink)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:8px}
+.top img{max-height:52px;max-width:42%;object-fit:contain}
+#type{flex:0 0 7.5rem;width:auto}
+.ghost{margin-top:12px;padding:8px 16px;color:var(--brand);background:transparent;border:1px solid var(--brand)}
+@media (prefers-color-scheme:dark){.ghost{color:var(--brand)}}
+.result .due b{white-space:normal}

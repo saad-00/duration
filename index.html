@@ -4,34 +4,44 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>حاسبة المدة التنفيذية</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f5c52">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
+  <header class="top">
+    <img src="logos/operator.svg" alt="" onerror="this.style.display='none'">
+    <img src="logos/parent.svg" alt="" onerror="this.style.display='none'">
+  </header>
   <h1>حاسبة المدة التنفيذية</h1>
-  <p class="lead">أدخل تاريخ ووقت بداية الخدمة لمعرفة هل الطلب تجاوز المدة.</p>
-
+  <p class="lead">أدخل تاريخ ووقت بداية المرحلة لمعرفة هل الطلب تجاوز المدة.</p>
   <p class="clock" id="clock"></p>
 
   <div class="card">
-    <label for="service">نوع الخدمة</label>
+    <label for="q">بحث</label>
+    <div class="row"><input type="search" id="q" placeholder="اكتب جزءاً من اسم الخدمة"><select id="type" aria-label="التصنيف"></select></div>
+
+    <label for="service">الخدمة / الشكوى / البلاغ</label>
     <select id="service"></select>
 
     <label for="stage">المرحلة</label>
     <select id="stage"></select>
 
-    <label for="start">تاريخ ووقت بداية الخدمة</label>
+    <label for="start">تاريخ ووقت بداية المرحلة</label>
     <div class="row"><input type="datetime-local" id="start"><button type="button" id="now">الآن</button></div>
 
     <p class="info" id="info"></p>
     <div id="result" class="result idle"></div>
   </div>
 
-  <h2>مدد المراحل لهذه الخدمة</h2>
+  <h2>مدد مراحل هذه الخدمة</h2>
   <table>
-    <thead><tr><th>المرحلة</th><th>المدة</th><th>النوع</th></tr></thead>
+    <thead><tr><th>المرحلة</th><th>المدة</th></tr></thead>
     <tbody id="tbody"></tbody>
   </table>
+  <button type="button" id="install" class="ghost" hidden>تثبيت التطبيق على الجهاز</button>
 </main>
 <script src="data.js"></script>
 <script src="app.js"></script>

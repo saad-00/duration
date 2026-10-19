@@ -62,48 +62,74 @@ function span(ms) {
 const durText = (v, m) => m === "hour" ? `${v} ساعة` : `${v} ${v === 1 ? "يوم" : "أيام"}`;
 const fill = (sel, items) => sel.innerHTML = items.map(i => `<option>${i}</option>`).join("");
 
+function workElapsed(start, now) {
+  let n = 0; const d = new Date(start);
+  for (;;) { d.setUTCDate(d.getUTCDate() + 1); if (d > now) break; if (!isOff(d)) n++; }
+  return n;
+}
+
 function renderClock() {
   $("clock").innerHTML = `الوقت الآن (${TZ_LABEL}): <b>${fmt(nowWall())}</b> · ` +
     (synced ? "✔ متزامن مع الخادم" : "⚠ تعذّر التحقق من الوقت، يُستخدم وقت الجهاز");
 }
 
 function render() {
-  const service = $("service").value, stage = $("stage").value, startStr = $("start").value;
-  const [value, mode] = DATA[service][stage];
-  $("info").innerHTML = `المرحلة: <b>${stage}</b> · المدة الأساسية: <b>${durText(value, mode)}</b> · النوع: <b>${UNIT[mode]}</b>`;
+  const box = $("result"), service = $("service").value, stage = $("stage").value, startStr = $("start").value;
+  if (!service) { $("info").innerHTML = ""; box.className = "result idle"; box.innerHTML = "لا توجد نتائج مطابقة للبحث."; return; }
+  const cell = DATA[service][stage], note = NOTES[service] ? `<br>ملاحظة: ${NOTES[service]}` : "";
+  if (cell === "x") { $("info").innerHTML = `المرحلة: <b>${stage}</b>${note}`; box.className = "result warn"; box.innerHTML = `<div class="head">تصعيد مباشرة</div><div class="sub">لا توجد مدة تعامل لهذه الخدمة، انتقل إلى إدارة الشكاوي.</div>`; return; }
+  if (!cell) { $("info").innerHTML = `المرحلة: <b>${stage}</b>${note}`; box.className = "result idle"; box.innerHTML = "هذه المرحلة غير منطبقة على هذه الخدمة."; return; }
+  const [value, mode] = cell;
+  $("info").innerHTML = `المرحلة: <b>${stage}</b> · المدة الأساسية: <b>${durText(value, mode)}</b> · النوع: <b>${UNIT[mode]}</b>${note}`;
+  if (!startStr) { box.className = "result idle"; box.innerHTML = "أدخل تاريخ ووقت بداية المرحلة لعرض النتيجة."; return; }
 
-  const box = $("result");
-  if (!startStr) { box.className = "result idle"; box.innerHTML = "أدخل تاريخ ووقت بداية الخدمة لعرض النتيجة."; return; }
-
-  const due = addTime(parseWall(startStr), value, mode);
-  const diff = due - nowWall();
+  const start = parseWall(startStr), now = nowWall(), due = addTime(start, value, mode), diff = due - now, el = now - start;
   let cls, head, sub;
   if (diff < 0)      { cls = "late"; head = "متجاوز";     sub = `تجاوز المدة منذ ${span(-diff)}`; }
   else if (diff < D) { cls = "warn"; head = "غير متجاوز"; sub = `تبقى أقل من 24 ساعة: ${span(diff)}`; }
   else               { cls = "ok";   head = "غير متجاوز"; sub = `المتبقي ${span(diff)}`; }
-
+  const elapsed = el < 0 ? "لم تبدأ بعد" : `${span(el)} (${Math.floor(el / D)} يوم عادي · ${workElapsed(start, now)} يوم عمل)`;
   box.className = "result " + cls;
   box.innerHTML = `<div class="head">${head}</div><div class="sub">${sub}</div>
-    <div class="due">ينتهي: <b>${fmt(due)}</b></div>`;
+    <div class="due">ينتهي: <b>${fmt(due)}</b></div><div class="due">المنقضي منذ البداية: <b>${elapsed}</b></div>
+    <button type="button" id="copy" class="ghost">نسخ النتيجة</button>`;
+  $("copy").onclick = () => {
+    const t = `${service} — ${stage}\nالبداية: ${fmt(start)}\nالمدة: ${durText(value, mode)} (${UNIT[mode]})\nينتهي: ${fmt(due)}\nالحالة: ${head} — ${sub}`;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => $("copy").textContent = "تم النسخ ✔").catch(() => prompt("انسخ النتيجة:", t));
+  };
 }
+
+function cellText(c) { return c === "x" ? "تصعيد مباشرة" : c ? `${durText(c[0], c[1])} · ${UNIT[c[1]]}` : "—"; }
 
 function renderTable() {
   const s = DATA[$("service").value];
-  $("tbody").innerHTML = STAGES.map(st => {
-    const [v, m] = s[st];
-    return `<tr class="${st === $("stage").value ? "cur" : ""}"><td>${st}</td><td>${durText(v, m)}</td><td>${UNIT[m]}</td></tr>`;
-  }).join("");
+  $("tbody").innerHTML = s ? STAGES.map(st => `<tr class="${st === $("stage").value ? "cur" : ""}"><td>${st}</td><td>${cellText(s[st])}</td></tr>`).join("") : "";
 }
 
 const tick = () => { renderClock(); render(); };
 function update() { renderTable(); tick(); }
 
+function filterServices() {
+  const q = $("q").value.trim(), t = $("type").value, cur = $("service").value;
+  const list = ORDER.filter(n => n.includes(q) && (!t || typeOf(n) === t));
+  fill($("service"), list);
+  if (list.includes(cur)) $("service").value = cur;
+  update();
+}
+
 // ---- init ----
-fill($("service"), Object.keys(DATA));
+$("type").innerHTML = ["", "خدمة", "شكوى", "بلاغ"].map(t => `<option value="${t}">${t || "الكل"}</option>`).join("");
 fill($("stage"), STAGES);
+["q", "type"].forEach(id => $(id).addEventListener("input", filterServices));
 ["service", "stage", "start"].forEach(id => $(id).addEventListener("input", update));
 $("now").addEventListener("click", () => { $("start").value = nowWall().toISOString().slice(0, 16); update(); });
-update();
+filterServices();
 syncTime().then(tick);
-setInterval(tick, 15000);                        // تحديث العرض كل 15 ثانية
-setInterval(() => syncTime().then(tick), 600000); // إعادة المزامنة كل 10 دقائق
+setInterval(tick, 15000);
+setInterval(() => syncTime().then(tick), 600000);
+
+// تثبيت كتطبيق
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+let prompt_;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); prompt_ = e; $("install").hidden = false; });
+$("install").onclick = () => { prompt_.prompt(); $("install").hidden = true; };
