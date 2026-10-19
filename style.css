@@ -36,3 +36,5 @@ tr.cur td{background:var(--okbg);font-weight:700}
 .row input{flex:1;min-width:0}
 button{padding:0 18px;font:inherit;font-weight:700;color:#fff;background:var(--brand);border:0;border-radius:8px;cursor:pointer}
 @media (prefers-color-scheme:dark){button{color:#10181c}}
+.clock{margin:0 0 12px;padding:8px 12px;font-size:.88rem;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:8px}
+.clock b{color:var(--ink)}
