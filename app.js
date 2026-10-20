@@ -92,11 +92,10 @@ function render() {
   box.className = "result " + cls;
   box.innerHTML = `<div class="head">${head}</div><div class="sub">${sub}</div>
     <div class="due">ينتهي: <b>${fmt(due)}</b></div><div class="due">المنقضي منذ البداية: <b>${elapsed}</b></div>
-    <button type="button" id="copy" class="ghost">نسخ النتيجة</button>`;
-  $("copy").onclick = () => {
-    const t = `${service} — ${stage}\nالبداية: ${fmt(start)}\nالمدة: ${durText(value, mode)} (${UNIT[mode]})\nينتهي: ${fmt(due)}\nالحالة: ${head} — ${sub}`;
-    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => $("copy").textContent = "تم النسخ ✔").catch(() => prompt("انسخ النتيجة:", t));
-  };
+     `
+     ; 
+     
+  
 }
 
 function cellText(c) { return c === "x" ? "تصعيد مباشرة" : c ? `${durText(c[0], c[1])} · ${UNIT[c[1]]}` : "—"; }
@@ -122,7 +121,7 @@ $("type").innerHTML = ["", "خدمة", "شكوى", "بلاغ"].map(t => `<option
 fill($("stage"), STAGES);
 ["q", "type"].forEach(id => $(id).addEventListener("input", filterServices));
 ["service", "stage", "start"].forEach(id => $(id).addEventListener("input", update));
-$("now").addEventListener("click", () => { $("start").value = nowWall().toISOString().slice(0, 16); update(); });
+$("start").value = nowWall().toISOString().slice(0, 16);
 filterServices();
 syncTime().then(tick);
 setInterval(tick, 15000);

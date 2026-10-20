@@ -2,7 +2,7 @@
   --bg:#f2f4f3; --card:#fff; --ink:#14232b; --muted:#5c6b73; --line:#d9e0dd;
   --brand:#0f5c52; --ok:#17703a; --okbg:#e5f4ea; --warn:#8a5300; --warnbg:#fff1d6; --late:#a8231b; --latebg:#fde7e5;
 }
-@media (prefers-color-scheme:dark){
+@media all{
   :root{--bg:#10181c; --card:#18242a; --ink:#e8efed; --muted:#97a8ae; --line:#2b3a41;
     --brand:#5fc4b3; --ok:#7bd99b; --okbg:#143222; --warn:#f0b35a; --warnbg:#3a2a0d; --late:#ff948c; --latebg:#3d1a17;}
 }
@@ -35,12 +35,12 @@ tr.cur td{background:var(--okbg);font-weight:700}
 .row{display:flex;gap:8px}
 .row input{flex:1;min-width:0}
 button{padding:0 18px;font:inherit;font-weight:700;color:#fff;background:var(--brand);border:0;border-radius:8px;cursor:pointer}
-@media (prefers-color-scheme:dark){button{color:#10181c}}
+@media all{button{color:#10181c}}
 .clock{margin:0 0 12px;padding:8px 12px;font-size:.88rem;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:8px}
 .clock b{color:var(--ink)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:8px}
 .top img{max-height:52px;max-width:42%;object-fit:contain}
 #type{flex:0 0 7.5rem;width:auto}
 .ghost{margin-top:12px;padding:8px 16px;color:var(--brand);background:transparent;border:1px solid var(--brand)}
-@media (prefers-color-scheme:dark){.ghost{color:var(--brand)}}
+@media all{.ghost{color:var(--brand)}}
 .result .due b{white-space:normal}
