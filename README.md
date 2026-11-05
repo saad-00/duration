@@ -10,7 +10,6 @@ A simple web tool that tells an employee whether a service request, complaint or
 - Stages: Handling, Complaints Management, Escalation 1, 2 and 3
 - Three duration types: hours, calendar days, working days (weekend and holidays skipped)
 - Search and filter by type (service / complaint / report)
-- "Copy result" button for a ready-to-paste summary
 - Uses server time and a fixed company timezone, not the device clock
 - Installable on phones and desktops, and works offline (falls back to the device clock)
 
@@ -62,7 +61,6 @@ Hosted on GitHub Pages (Settings > Pages > Deploy from branch `main`).
 - المراحل: مدة التعامل، إدارة الشكاوي، تصعيد 1 و2 و3
 - ثلاثة أنواع للمدد: ساعات، أيام عادية، أيام عمل (تُستثنى العطلة والإجازات)
 - بحث وفلترة بحسب النوع (خدمة / شكوى / بلاغ)
-- زر «نسخ النتيجة» لملخص جاهز للصق
 - يعتمد على وقت الخادم وتوقيت ثابت للشركة بدل ساعة الجهاز
 - يُثبَّت على الجوال والكمبيوتر ويعمل بدون إنترنت (مع استخدام ساعة الجهاز)
 
