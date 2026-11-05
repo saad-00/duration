@@ -63,7 +63,7 @@ const short = c => c === "x" ? "مباشرة" : c ? durText(c[0], c[1]) : "—";
 const full = c => c === "x" ? "تصعيد مباشرة" : c ? `${durText(c[0], c[1])} ${c[1] === "hour" ? "" : "(" + UNIT[c[1]] + ")"}`.trim() : "—";
 
 /* ===== الحالة ===== */
-let sel = null, stage = STAGES[0], type = "";
+let sel = null, stage = STAGES[0], type = "", summary = "";
 const store = {
   get() { try { return JSON.parse(localStorage.getItem("recent")) || []; } catch (e) { return []; } },
   add(n) { try { localStorage.setItem("recent", JSON.stringify([n, ...this.get().filter(x => x !== n)].slice(0, 4))); } catch (e) {} }
@@ -126,7 +126,11 @@ function renderWork() {
   box.innerHTML = ring(color, late ? 1 : pct, late ? "متجاوز" : "غير متجاوز", hc, parts[0], parts.slice(1).join(" و ")) +
     `<div class="k cap">${late ? "مدة التجاوز" : soon ? "تبقى أقل من 24 ساعة" : "المتبقي حتى الانتهاء"}</div>
     <div class="tiles"><div class="tile"><span class="k">${late ? "كان ينتهي" : "ينتهي"}</span><b>${fmt(due)}</b></div><div class="tile"><span class="k">المنقضي</span><b>${elapsed}</b><span class="k">${Math.max(0, Math.floor(el / D))} يوم عادي</span></div></div>
-    <div class="next"><span class="k">المرحلة التالية عند التأخر</span><b>${nxt}</b></div>`;
+    <div class="next"><span class="k">المرحلة التالية عند التأخر</span><b>${nxt}</b></div>
+    <button type="button" class="copy" data-copy>نسخ النتيجة</button>`;
+  summary = [`الخدمة: ${sel}`, `المرحلة: ${stage}`, `الحالة: ${late ? "متجاوز" : "غير متجاوز"}`,
+    `${late ? "مدة التجاوز" : "المتبقي"}: ${span(Math.abs(diff))}`, `بداية المرحلة: ${fmt(start)}`,
+    `${late ? "كان ينتهي" : "ينتهي"}: ${fmt(due)}`].join("\n");
 }
 
 function renderClock() {
@@ -146,6 +150,12 @@ $("results").addEventListener("keydown", e => { if (e.key === "Enter") pickEvt(e
 $("recent").addEventListener("click", pickEvt);
 $("stages").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { stage = b.dataset.s; renderWork(); } });
 $("start").addEventListener("input", renderWork);
+$("result").addEventListener("click", async e => {
+  const b = e.target.closest("[data-copy]"); if (!b || !summary) return;
+  try { await navigator.clipboard.writeText(summary); b.textContent = "تم النسخ ✓"; }
+  catch (err) { b.textContent = "تعذّر النسخ"; }
+  setTimeout(() => { b.textContent = "نسخ النتيجة"; }, 2000);
+});
 
 /* ===== التثبيت كتطبيق ===== */
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
