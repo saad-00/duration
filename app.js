@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 const H = 3600000, D = 86400000;
-const UNIT = { work: "أيام عمل", cal: "أيام عادية", hour: "ساعات" };
+const UNIT = { work: "أيام عمل", cal: "أيام عادية", hour: "ساعات", whour: "ساعات عمل" };
 const pad = n => String(n).padStart(2, "0");
 
 /* ===== الوقت الحقيقي وتوقيت الشركة =====
@@ -38,7 +38,21 @@ function parseWall(s) {
   const [dt, tm] = s.split("T"), [y, m, d] = dt.split("-").map(Number), [h, mi] = tm.split(":").map(Number);
   return new Date(Date.UTC(y, m - 1, d, h, mi));
 }
+function addWorkHours(start, n) {
+  const d = new Date(start), S = WORK_START * 60, E = WORK_END * 60;
+  let left = n * 60;
+  const nextDay = () => { d.setUTCDate(d.getUTCDate() + 1); d.setUTCHours(0, 0, 0, 0); };
+  for (;;) {
+    if (isOff(d)) { nextDay(); continue; }
+    let m = d.getUTCHours() * 60 + d.getUTCMinutes();
+    if (m < S) { d.setUTCHours(Math.floor(S / 60), S % 60, 0, 0); m = S; }
+    if (m >= E) { nextDay(); continue; }
+    if (left <= E - m) { d.setUTCMinutes(d.getUTCMinutes() + left); return d; }
+    left -= E - m; nextDay();
+  }
+}
 function addTime(start, n, mode) {
+  if (mode === "whour") return addWorkHours(start, n);
   if (mode === "hour") return new Date(start.getTime() + n * H);
   const d = new Date(start);
   if (mode === "cal") { d.setUTCDate(d.getUTCDate() + n); return d; }
@@ -58,9 +72,9 @@ function span(ms) {
   if (m % 60) parts.push(`${m % 60} دقيقة`);
   return parts.join(" و ") || "أقل من دقيقة";
 }
-const durText = (v, m) => m === "hour" ? `${v} ساعة` : `${v} ${v === 1 ? "يوم" : "أيام"}`;
+const durText = (v, m) => m === "hour" ? `${v} ساعة` : m === "whour" ? `${v} ساعة عمل` : `${v} ${v === 1 ? "يوم" : "أيام"}`;
 const short = c => c === "x" ? "مباشرة" : c ? durText(c[0], c[1]) : "—";
-const full = c => c === "x" ? "تصعيد مباشرة" : c ? `${durText(c[0], c[1])} ${c[1] === "hour" ? "" : "(" + UNIT[c[1]] + ")"}`.trim() : "—";
+const full = c => c === "x" ? "تصعيد مباشرة" : c ? `${durText(c[0], c[1])} ${c[1] === "hour" || c[1] === "whour" ? "" : "(" + UNIT[c[1]] + ")"}`.trim() : "—";
 
 /* ===== الحالة ===== */
 let sel = null, stage = STAGES[0], type = "";
@@ -115,11 +129,11 @@ function renderWork() {
 
   const [value, mode] = cell, start = parseWall(startStr), now = nowWall();
   const due = addTime(start, value, mode), diff = due - now, el = now - start;
-  const done = mode === "hour" ? el / (value * H) : mode === "cal" ? el / (value * D) : workElapsed(start, now) / value;
+  const done = mode === "whour" ? el / (due - start) : mode === "hour" ? el / (value * H) : mode === "cal" ? el / (value * D) : workElapsed(start, now) / value;
   const pct = Math.max(0, Math.min(1, done));
   const parts = span(Math.abs(diff)).split(" و ");
   const late = diff < 0, soon = !late && diff < D;
-  const color = late ? "#ff948c" : soon ? "#a9bccd" : "#4fb6ec", hc = late ? "#ff948c" : "#5fe0a8";
+  const color = late ? "#ff948c" : soon ? "#93a9f5" : "#4fb6ec", hc = late ? "#ff948c" : "#5fe0a8";
   const elapsed = el < 0 ? "لم تبدأ بعد" : `${workElapsed(start, now)} أيام عمل`;
   const ni = STAGES.indexOf(stage) + 1, nxt = ni < STAGES.length ? `${STAGES[ni]} · ${full(rows[STAGES[ni]])}` : "لا توجد مرحلة تالية";
 
